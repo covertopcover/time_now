@@ -1,5 +1,5 @@
 // Track page view with detailed properties
-mixpanel.track('Page View', {
+mixpanel.track('Page Viewed', {
     // Page Information
     'page_title': document.title,
     'url': window.location.href,
