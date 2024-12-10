@@ -34,13 +34,23 @@ mixpanel.track('Page Viewed', {
 async function updateDateTime() {
     try {
         const response = await fetch('/api/time');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
         const data = await response.json();
         
-        // Format date
-        const date = new Date(data.timestamp);
+        if (!data.timestamp) {
+            throw new Error('Invalid timestamp received');
+        }
+
+        const date = new Date(Number(data.timestamp));
         const dateElement = document.getElementById('date');
         const clockElement = document.getElementById('clock');
         
+        if (isNaN(date.getTime())) {
+            throw new Error('Invalid date');
+        }
+
         // Update date display
         dateElement.textContent = date.toLocaleDateString('en-US', {
             weekday: 'long',
@@ -52,9 +62,12 @@ async function updateDateTime() {
         // Update time display
         clockElement.textContent = date.toLocaleTimeString();
     } catch (error) {
-        console.error('Error fetching time:', error);
-        // Fallback to local time if API fails
+        console.error('Error:', error);
+        // Fallback to local time
         const fallbackDate = new Date();
+        const dateElement = document.getElementById('date');
+        const clockElement = document.getElementById('clock');
+        
         dateElement.textContent = fallbackDate.toLocaleDateString('en-US', {
             weekday: 'long',
             year: 'numeric',
