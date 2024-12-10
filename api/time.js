@@ -4,14 +4,15 @@ const client = new NTPClient();
 module.exports = async (req, res) => {
   try {
     console.log('Attempting to connect to NTP server...');
-    const ntpDate = await client.getNetworkTime('pool.ntp.org');
+    const ntpDate = await client.syncTime();
     console.log('NTP Response received:', ntpDate);
     
-    const jsTimestamp = (ntpDate.receiveTimestamp * 1000);
+    const jsTimestamp = Date.now();
     
     res.json({
       timestamp: jsTimestamp,
-      formatted: new Date(jsTimestamp).toLocaleString()
+      formatted: new Date(jsTimestamp).toLocaleString(),
+      ntpData: ntpDate
     });
   } catch (error) {
     console.error('Detailed NTP Error:', {
