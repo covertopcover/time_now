@@ -7,12 +7,11 @@ module.exports = async (req, res) => {
     const ntpDate = await client.syncTime();
     console.log('NTP Response received:', ntpDate);
     
-    const jsTimestamp = Date.now();
+    const jsTimestamp = new Date(ntpDate.time).getTime();
     
     res.json({
       timestamp: jsTimestamp,
-      formatted: new Date(jsTimestamp).toLocaleString(),
-      ntpData: ntpDate
+      formatted: new Date(jsTimestamp).toLocaleString()
     });
   } catch (error) {
     console.error('Detailed NTP Error:', {
