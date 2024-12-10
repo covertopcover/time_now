@@ -31,14 +31,42 @@ mixpanel.track('Page Viewed', {
     'timestamp': new Date().toISOString()
 });
 
-function updateTime() {
-    const clockElement = document.getElementById('clock');
-    const currentTime = new Date();
-    clockElement.textContent = currentTime.toLocaleTimeString();
+async function updateDateTime() {
+    try {
+        const response = await fetch('/api/time');
+        const data = await response.json();
+        
+        // Format date
+        const date = new Date(data.timestamp);
+        const dateElement = document.getElementById('date');
+        const clockElement = document.getElementById('clock');
+        
+        // Update date display
+        dateElement.textContent = date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Update time display
+        clockElement.textContent = date.toLocaleTimeString();
+    } catch (error) {
+        console.error('Error fetching time:', error);
+        // Fallback to local time if API fails
+        const fallbackDate = new Date();
+        dateElement.textContent = fallbackDate.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        clockElement.textContent = fallbackDate.toLocaleTimeString();
+    }
 }
 
-// Update time every second
-setInterval(updateTime, 1000);
+// Update every second
+setInterval(updateDateTime, 1000);
 
-// Initial call to display time immediately
-updateTime();
+// Initial update
+updateDateTime();
