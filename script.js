@@ -31,38 +31,58 @@ mixpanel.track('Page Viewed', {
     'timestamp': new Date().toISOString()
 });
 
-async function fetchTime() {
-    try {
-        const response = await fetch('/api/time');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
+// Define calendar functions first
+function createCalendar(date) {
+    const headerElement = document.getElementById('calendar-header');
+    const bodyElement = document.getElementById('calendar-body');
+    
+    // Set month and year in header
+    headerElement.textContent = date.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    // Clear existing calendar
+    bodyElement.innerHTML = '';
+    
+    // Get first day of month and total days
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    
+    // Adjust first day to previous Monday if needed
+    let currentDay = new Date(firstDay);
+    currentDay.setDate(currentDay.getDate() - (firstDay.getDay() || 7) + 1);
+    
+    // Create calendar rows
+    while (currentDay <= lastDay || currentDay.getDay() !== 1) {
+        const row = document.createElement('tr');
         
-        if (!data.timestamp) {
-            throw new Error('Invalid timestamp received');
-        }
-
-        const date = new Date(Number(data.timestamp));
-        updateDisplay(date);
+        // Add week number
+        const weekNum = document.createElement('td');
+        weekNum.textContent = getWeekNumber(currentDay);
+        row.appendChild(weekNum);
         
-        // Create calendar only on initial load
-        if (!window.calendarInitialized) {
-            createCalendar(date);
-            window.calendarInitialized = true;
+        // Add days
+        for (let i = 0; i < 7; i++) {
+            const cell = document.createElement('td');
+            if (currentDay.getMonth() === date.getMonth()) {
+                cell.textContent = currentDay.getDate();
+                if (currentDay.getDate() === date.getDate() && 
+                    currentDay.getMonth() === date.getMonth()) {
+                    cell.classList.add('current-day');
+                }
+            }
+            row.appendChild(cell);
+            currentDay.setDate(currentDay.getDate() + 1);
         }
-    } catch (error) {
-        console.error('Error:', error);
-        // Fallback to local time
-        const fallbackDate = new Date();
-        updateDisplay(fallbackDate);
         
-        // Create calendar with fallback date if not initialized
-        if (!window.calendarInitialized) {
-            createCalendar(fallbackDate);
-            window.calendarInitialized = true;
-        }
+        bodyElement.appendChild(row);
     }
+}
+
+function getWeekNumber(date) {
+    const firstJanuary = new Date(date.getFullYear(), 0, 1);
+    return Math.ceil((((date - firstJanuary) / 86400000) + firstJanuary.getDay() + 1) / 7);
 }
 
 function updateDisplay(date) {
@@ -78,7 +98,39 @@ function updateDisplay(date) {
     clockElement.textContent = date.toLocaleTimeString();
 }
 
-// Fetch time initially
+async function fetchTime() {
+    try {
+        const response = await fetch('/api/time');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        
+        if (!data.timestamp) {
+            throw new Error('Invalid timestamp received');
+        }
+
+        const date = new Date(Number(data.timestamp));
+        updateDisplay(date);
+        
+        if (!window.calendarInitialized) {
+            createCalendar(date);
+            window.calendarInitialized = true;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        // Fallback to local time
+        const fallbackDate = new Date();
+        updateDisplay(fallbackDate);
+        
+        if (!window.calendarInitialized) {
+            createCalendar(fallbackDate);
+            window.calendarInitialized = true;
+        }
+    }
+}
+
+// Initial fetch
 fetchTime();
 
 // Update time every 5 minutes
