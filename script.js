@@ -45,10 +45,23 @@ async function fetchTime() {
 
         const date = new Date(Number(data.timestamp));
         updateDisplay(date);
+        
+        // Create calendar only on initial load
+        if (!window.calendarInitialized) {
+            createCalendar(date);
+            window.calendarInitialized = true;
+        }
     } catch (error) {
         console.error('Error:', error);
         // Fallback to local time
-        updateDisplay(new Date());
+        const fallbackDate = new Date();
+        updateDisplay(fallbackDate);
+        
+        // Create calendar with fallback date if not initialized
+        if (!window.calendarInitialized) {
+            createCalendar(fallbackDate);
+            window.calendarInitialized = true;
+        }
     }
 }
 

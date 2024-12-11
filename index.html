@@ -9,10 +9,28 @@
 <body>
     <div class="container">
         <div class="block">
+            <div id="clock"></div>
             <div id="date"></div>
         </div>
         <div class="block">
-            <div id="clock"></div>
+            <div id="calendar">
+                <div id="calendar-header"></div>
+                <table id="calendar-table">
+                    <thead>
+                        <tr>
+                            <th>Wk</th>
+                            <th>Mo</th>
+                            <th>Tu</th>
+                            <th>We</th>
+                            <th>Th</th>
+                            <th>Fr</th>
+                            <th>Sa</th>
+                            <th>Su</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendar-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
