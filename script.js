@@ -31,7 +31,7 @@ mixpanel.track('Page Viewed', {
     'timestamp': new Date().toISOString()
 });
 
-async function updateDateTime() {
+async function fetchTime() {
     try {
         const response = await fetch('/api/time');
         if (!response.ok) {
@@ -44,42 +44,36 @@ async function updateDateTime() {
         }
 
         const date = new Date(Number(data.timestamp));
-        const dateElement = document.getElementById('date');
-        const clockElement = document.getElementById('clock');
-        
-        if (isNaN(date.getTime())) {
-            throw new Error('Invalid date');
-        }
-
-        // Update date display
-        dateElement.textContent = date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        
-        // Update time display
-        clockElement.textContent = date.toLocaleTimeString();
+        updateDisplay(date);
     } catch (error) {
         console.error('Error:', error);
         // Fallback to local time
-        const fallbackDate = new Date();
-        const dateElement = document.getElementById('date');
-        const clockElement = document.getElementById('clock');
-        
-        dateElement.textContent = fallbackDate.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        clockElement.textContent = fallbackDate.toLocaleTimeString();
+        updateDisplay(new Date());
     }
 }
 
-// Update every second
-setInterval(updateDateTime, 1000);
+function updateDisplay(date) {
+    const dateElement = document.getElementById('date');
+    const clockElement = document.getElementById('clock');
+    
+    dateElement.textContent = date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    clockElement.textContent = date.toLocaleTimeString();
+}
 
-// Initial update
-updateDateTime();
+// Fetch time initially
+fetchTime();
+
+// Update time every 5 minutes
+setInterval(fetchTime, 300000);
+
+// Update clock every second using local time
+setInterval(() => {
+    const now = new Date();
+    const clockElement = document.getElementById('clock');
+    clockElement.textContent = now.toLocaleTimeString();
+}, 1000);
