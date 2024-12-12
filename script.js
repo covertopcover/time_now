@@ -81,8 +81,28 @@ function createCalendar(date) {
 }
 
 function getWeekNumber(date) {
-    const firstJanuary = new Date(date.getFullYear(), 0, 1);
-    return Math.ceil((((date - firstJanuary) / 86400000) + firstJanuary.getDay() + 1) / 7);
+    // Copy date to prevent modifying the original
+    const target = new Date(date.valueOf());
+    
+    // ISO week date weeks start on Monday
+    const dayNr = (date.getDay() + 6) % 7;
+    
+    // Set to nearest Thursday: current date + 4 - current day number
+    target.setDate(target.getDate() - dayNr + 3);
+    
+    // Get first day of year
+    const firstThursday = new Date(target.getFullYear(), 0, 1);
+    
+    // Set to nearest Thursday
+    if (firstThursday.getDay() !== 4) {
+        firstThursday.setMonth(0, 1 + ((4 - firstThursday.getDay()) + 7) % 7);
+    }
+    
+    // Calculate week number
+    const weekNum = 1 + Math.ceil((target - firstThursday) / (7 * 24 * 60 * 60 * 1000));
+    
+    // Ensure we return 52 for the last week of the year
+    return weekNum > 52 ? 52 : weekNum;
 }
 
 function updateDisplay(date) {
@@ -98,6 +118,98 @@ function updateDisplay(date) {
     clockElement.textContent = date.toLocaleTimeString();
 }
 
+// Add this new function to create a calendar for any month
+function createMonthCalendar(date, isCurrentMonth = false) {
+    const container = document.createElement('div');
+    container.className = 'block calendar-block';
+    
+    // Create header
+    const header = document.createElement('div');
+    header.className = 'calendar-header';
+    header.textContent = date.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
+    });
+    container.appendChild(header);
+    
+    // Create table
+    const table = document.createElement('table');
+    table.className = 'calendar-table';
+    
+    // Add weekday headers
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>Wk</th>
+            <th>Mo</th>
+            <th>Tu</th>
+            <th>We</th>
+            <th>Th</th>
+            <th>Fr</th>
+            <th>Su</th>
+            <th>Sa</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+    
+    // Create tbody and fill with dates
+    const tbody = document.createElement('tbody');
+    
+    // Get first day of month and total days
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    
+    // Adjust first day to previous Monday
+    let currentDay = new Date(firstDay);
+    currentDay.setDate(currentDay.getDate() - (firstDay.getDay() || 7) + 1);
+    
+    // Create calendar rows
+    while (currentDay <= lastDay || currentDay.getDay() !== 1) {
+        const row = document.createElement('tr');
+        
+        // Add week number
+        const weekNum = document.createElement('td');
+        weekNum.textContent = getWeekNumber(currentDay);
+        row.appendChild(weekNum);
+        
+        // Add days
+        for (let i = 0; i < 7; i++) {
+            const cell = document.createElement('td');
+            if (currentDay.getMonth() === date.getMonth()) {
+                cell.textContent = currentDay.getDate();
+                if (isCurrentMonth && 
+                    currentDay.getDate() === date.getDate() && 
+                    currentDay.getMonth() === date.getMonth()) {
+                    cell.classList.add('current-day');
+                }
+            }
+            row.appendChild(cell);
+            currentDay.setDate(currentDay.getDate() + 1);
+        }
+        
+        tbody.appendChild(row);
+    }
+    
+    table.appendChild(tbody);
+    container.appendChild(table);
+    return container;
+}
+
+// Add this function to create all future months
+function createFutureMonths(currentDate) {
+    const futureMonthsContainer = document.getElementById('future-months');
+    futureMonthsContainer.innerHTML = ''; // Clear existing calendars
+    
+    // Create next 12 months
+    for (let i = 1; i <= 12; i++) {
+        const futureDate = new Date(currentDate);
+        futureDate.setMonth(currentDate.getMonth() + i);
+        const calendar = createMonthCalendar(futureDate, false);
+        futureMonthsContainer.appendChild(calendar);
+    }
+}
+
+// Modify the existing fetchTime function to include future months
 async function fetchTime() {
     try {
         const response = await fetch('/api/time');
@@ -114,17 +226,18 @@ async function fetchTime() {
         updateDisplay(date);
         
         if (!window.calendarInitialized) {
-            createCalendar(date);
+            createCalendar(date);  // Current month
+            createFutureMonths(date);  // Future months
             window.calendarInitialized = true;
         }
     } catch (error) {
         console.error('Error:', error);
-        // Fallback to local time
         const fallbackDate = new Date();
         updateDisplay(fallbackDate);
         
         if (!window.calendarInitialized) {
             createCalendar(fallbackDate);
+            createFutureMonths(fallbackDate);
             window.calendarInitialized = true;
         }
     }

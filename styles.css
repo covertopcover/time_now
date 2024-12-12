@@ -3,14 +3,14 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f0f0f0;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: auto;
+    overflow-y: auto;
 }
 
 .page-container {
-    height: 100%;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -23,8 +23,6 @@ body {
     gap: 15px;
     padding: 10px;
     flex: 1;
-    justify-content: center;
-    align-items: center;
     width: 100%;
     max-width: 380px;
     margin: 0 auto;
@@ -117,4 +115,50 @@ body {
 /* Add red color for the heart */
 .footer span {
     color: #ff0000;
+}
+
+/* Add styles for future months */
+#future-months {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.calendar-block {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.calendar-header {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.9em;
+}
+
+.calendar-table th,
+.calendar-table td {
+    padding: 6px;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.calendar-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
 }
