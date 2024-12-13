@@ -162,3 +162,26 @@ body {
     color: #495057;
     font-weight: 600;
 }
+
+/* Add these moon phase styles to your existing CSS */
+#moon-phase-symbol {
+    font-size: 48px;  /* Same size as clock */
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1;  /* Ensure proper vertical spacing */
+}
+
+#moon-phase-name {
+    font-size: 24px;  /* Same size as date */
+    text-align: center;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+#moon-illumination,
+#moon-full {
+    font-size: 16px;
+    text-align: center;
+    color: #666;
+    margin-bottom: 3px;
+}
