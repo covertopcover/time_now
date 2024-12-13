@@ -209,7 +209,31 @@ function createFutureMonths(currentDate) {
     }
 }
 
-// Modify the existing fetchTime function to include future months
+// Add these new functions
+function calculateMsUntilMidnight() {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return tomorrow - now;
+}
+
+function setupMidnightUpdate() {
+    const msUntilMidnight = calculateMsUntilMidnight();
+    
+    // Set timeout for next midnight
+    setTimeout(() => {
+        // Update calendars
+        const currentDate = new Date();
+        createCalendar(currentDate);
+        createFutureMonths(currentDate);
+        
+        // Setup next midnight update
+        setupMidnightUpdate();
+    }, msUntilMidnight);
+}
+
+// Modify fetchTime function to initialize midnight updates
 async function fetchTime() {
     try {
         const response = await fetch('/api/time');
@@ -226,9 +250,10 @@ async function fetchTime() {
         updateDisplay(date);
         
         if (!window.calendarInitialized) {
-            createCalendar(date);  // Current month
-            createFutureMonths(date);  // Future months
+            createCalendar(date);
+            createFutureMonths(date);
             window.calendarInitialized = true;
+            setupMidnightUpdate();
         }
     } catch (error) {
         console.error('Error:', error);
@@ -239,6 +264,7 @@ async function fetchTime() {
             createCalendar(fallbackDate);
             createFutureMonths(fallbackDate);
             window.calendarInitialized = true;
+            setupMidnightUpdate();
         }
     }
 }
