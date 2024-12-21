@@ -197,3 +197,21 @@ body {
     color: #666;
     margin-top: 4px;
 }
+
+.moon-container {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    margin-bottom: 10px;
+}
+
+.moon-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(0deg); /* Changed from -90deg to 0deg */
+}
+
+.moon-svg circle {
+    stroke: #E2E2E2;
+    stroke-width: 1;
+}

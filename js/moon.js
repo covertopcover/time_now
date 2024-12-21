@@ -62,29 +62,24 @@ function getMoonPhase(date) {
     const { D, M, Mprime } = getMoonOrbitalElements(T);
     const phase = calculateMoonPhase(date);
     
-    const phases = [
-        { symbol: '🌑', name: 'New Moon', max: 0.0625 },
-        { symbol: '🌒', name: 'Waxing Crescent', max: 0.1875 },
-        { symbol: '🌓', name: 'First Quarter', max: 0.3125 },
-        { symbol: '🌔', name: 'Waxing Gibbous', max: 0.4375 },
-        { symbol: '🌕', name: 'Full Moon', max: 0.5625 },
-        { symbol: '🌖', name: 'Waning Gibbous', max: 0.6875 },
-        { symbol: '🌗', name: 'Last Quarter', max: 0.8125 },
-        { symbol: '🌘', name: 'Waning Crescent', max: 0.9375 },
-        { symbol: '🌑', name: 'New Moon', max: 1.0 }
-    ];
+    // Simplified phase names
+    let phaseName;
+    if (phase <= 0.0625 || phase > 0.9375) phaseName = 'New Moon';
+    else if (phase <= 0.1875) phaseName = 'Waxing Crescent';
+    else if (phase <= 0.3125) phaseName = 'First Quarter';
+    else if (phase <= 0.4375) phaseName = 'Waxing Gibbous';
+    else if (phase <= 0.5625) phaseName = 'Full Moon';
+    else if (phase <= 0.6875) phaseName = 'Waning Gibbous';
+    else if (phase <= 0.8125) phaseName = 'Last Quarter';
+    else phaseName = 'Waning Crescent';
 
-    // Find current phase using find() instead of for loop
-    const currentPhase = phases.find(p => phase <= p.max) || phases[0];
-    
     // Simplify full moon calculations
     const daysUntilFull = ((0.5 - phase + (phase > 0.5 ? 1 : 0)) * SYNODIC_MONTH);
     const nextFullMoon = new Date(date.getTime() + (daysUntilFull * 24 * 60 * 60 * 1000));
 
     return {
         phase,
-        symbol: currentPhase.symbol,
-        name: currentPhase.name,
+        name: phaseName,
         julianDate: jd,
         T,
         D,
@@ -95,11 +90,42 @@ function getMoonPhase(date) {
     };
 }
 
-// Simplify update display function
-function updateMoonDisplay(date) {
-    const { symbol, name, nextFullMoon, daysUntilFullMoon } = getMoonPhase(date);
+function generateMoonShadowPath(phase) {
+    const r = 48; // radius should match the circle radius
+    const cx = 50; // center x
+    const cy = 50; // center y
     
-    document.getElementById('moon-phase-symbol').textContent = symbol;
+    // Normalize phase to handle edge cases
+    const normalizedPhase = phase % 1;
+    
+    if (normalizedPhase <= 0.5) {
+        // Waxing moon (new to full) - shadow moves right to left
+        const x = cx - r * Math.cos(2 * Math.PI * normalizedPhase);
+        return `
+            M ${cx},${cy - r}
+            A ${r},${r} 0 1,0 ${cx},${cy + r}
+            A ${Math.abs(x - cx)},${r} 0 0,0 ${cx},${cy - r}
+            Z
+        `;
+    } else {
+        // Waning moon (full to new) - shadow moves left to right
+        const x = cx - r * Math.cos(2 * Math.PI * normalizedPhase);
+        return `
+            M ${cx},${cy - r}
+            A ${r},${r} 0 1,1 ${cx},${cy + r}
+            A ${Math.abs(x - cx)},${r} 0 0,1 ${cx},${cy - r}
+            Z
+        `;
+    }
+}
+
+function updateMoonDisplay(date) {
+    const { phase, name, nextFullMoon, daysUntilFullMoon } = getMoonPhase(date);
+    
+    // Update the SVG shadow path
+    const shadowPath = document.getElementById('moon-shadow');
+    shadowPath.setAttribute('d', generateMoonShadowPath(phase));
+    
     document.getElementById('moon-phase-name').textContent = name;
     document.getElementById('moon-full').textContent = 
         `Next full moon: ${nextFullMoon.toLocaleDateString()} (in ${daysUntilFullMoon} days)`;
