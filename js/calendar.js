@@ -10,50 +10,22 @@ function getWeekNumber(date) {
     return weekNum > 52 ? 52 : weekNum;
 }
 
-function createCalendar(date) {
+async function createCalendar(date) {
     const headerElement = document.getElementById('calendar-header');
-    const bodyElement = document.getElementById('calendar-body');
-    
     headerElement.textContent = date.toLocaleDateString('en-US', {
         month: 'long',
         year: 'numeric'
     });
     
-    bodyElement.innerHTML = '';
-    
-    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    
-    let currentDay = new Date(firstDay);
-    currentDay.setDate(currentDay.getDate() - (firstDay.getDay() || 7) + 1);
-    
-    while (currentDay <= lastDay || currentDay.getDay() !== 1) {
-        const row = document.createElement('tr');
-        
-        const weekNum = document.createElement('td');
-        weekNum.textContent = getWeekNumber(currentDay);
-        row.appendChild(weekNum);
-        
-        for (let i = 0; i < 7; i++) {
-            const cell = document.createElement('td');
-            if (currentDay.getMonth() === date.getMonth()) {
-                cell.textContent = currentDay.getDate();
-                if (currentDay.getDate() === date.getDate() && 
-                    currentDay.getMonth() === date.getMonth()) {
-                    cell.classList.add('current-day');
-                }
-            }
-            row.appendChild(cell);
-            currentDay.setDate(currentDay.getDate() + 1);
-        }
-        
-        bodyElement.appendChild(row);
-    }
+    const calendar = await createMonthCalendar(date, true);
+    const currentCalendarContainer = document.getElementById('calendar');
+    currentCalendarContainer.innerHTML = '';
+    currentCalendarContainer.appendChild(calendar);
 }
 
-function createMonthCalendar(date, isCurrentMonth = false) {
+async function createMonthCalendar(date, isCurrentMonth = false) {
     const container = document.createElement('div');
-    container.className = 'block calendar-block';
+    container.className = isCurrentMonth ? '' : 'block';
     
     const header = document.createElement('div');
     header.className = 'calendar-header';
@@ -75,8 +47,8 @@ function createMonthCalendar(date, isCurrentMonth = false) {
             <th>We</th>
             <th>Th</th>
             <th>Fr</th>
-            <th>Su</th>
             <th>Sa</th>
+            <th>Su</th>
         </tr>
     `;
     table.appendChild(thead);
@@ -99,6 +71,10 @@ function createMonthCalendar(date, isCurrentMonth = false) {
         for (let i = 0; i < 7; i++) {
             const cell = document.createElement('td');
             if (currentDay.getMonth() === date.getMonth()) {
+                if (currentDay.getDay() === 0) {
+                    cell.style.color = '#FF0000';
+                }
+                
                 cell.textContent = currentDay.getDate();
                 if (isCurrentMonth && 
                     currentDay.getDate() === date.getDate() && 
@@ -118,35 +94,19 @@ function createMonthCalendar(date, isCurrentMonth = false) {
     return container;
 }
 
-function createFutureMonths(currentDate) {
+async function createFutureMonths(currentDate) {
     const futureMonthsContainer = document.getElementById('future-months');
     futureMonthsContainer.innerHTML = '';
     
     for (let i = 1; i <= 12; i++) {
         const futureDate = new Date(currentDate);
         futureDate.setMonth(currentDate.getMonth() + i);
-        const calendar = createMonthCalendar(futureDate, false);
+        const calendar = await createMonthCalendar(futureDate, false);
         futureMonthsContainer.appendChild(calendar);
     }
 }
 
-function calculateMsUntilMidnight() {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    return tomorrow - now;
-}
-
-function setupMidnightUpdate() {
-    const msUntilMidnight = calculateMsUntilMidnight();
-    
-    setTimeout(() => {
-        const currentDate = new Date();
-        createCalendar(currentDate);
-        createFutureMonths(currentDate);
-        updateMoonDisplay(currentDate);
-        
-        setupMidnightUpdate();
-    }, msUntilMidnight);
-}
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Empty initialization
+});

@@ -101,3 +101,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // ... existing initialization code ...
     updateLocationDisplay(); // Add this line
 });
+
+function setupMidnightUpdate() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timeUntilMidnight = tomorrow - now;
+    
+    // Update at midnight
+    setTimeout(() => {
+        const date = new Date();
+        createCalendar(date);
+        createFutureMonths(date);
+        updateMoonDisplay(date);
+        
+        // Schedule next update in 24 hours
+        setInterval(() => {
+            const newDate = new Date();
+            createCalendar(newDate);
+            createFutureMonths(newDate);
+            updateMoonDisplay(newDate);
+        }, 24 * 60 * 60 * 1000);
+    }, timeUntilMidnight);
+}
