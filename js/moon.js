@@ -13,16 +13,16 @@ const moonCache = {
 };
 
 // Move API key to environment variable or configuration
-const NASA_API_KEY = process.env.NASA_API_KEY;
+// const NASA_API_KEY = process.env.NASA_API_KEY;
 
 // Fetch from NASA HORIZONS
 async function fetchNASAMoonData() {
     try {
-        // Using NASA's public API instead of HORIZONS
-        const response = await fetch(`https://api.nasa.gov/planetary/earth/moon?api_key=${NASA_API_KEY}`);
+        // Instead of using NASA API directly, use Vercel's environment
+        const response = await fetch('/api/nasa/moon');
         
         if (!response.ok) {
-            throw new Error(`NASA API returned ${response.status}`);
+            throw new Error(`API returned ${response.status}`);
         }
         
         const data = await response.json();
@@ -33,7 +33,7 @@ async function fetchNASAMoonData() {
         
         return data;
     } catch (error) {
-        console.error('Failed to fetch NASA moon data:', error);
+        console.error('Failed to fetch moon data:', error);
         // Fallback to existing calculation method
         return getMoonPhase(new Date());
     }
