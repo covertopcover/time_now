@@ -26,6 +26,21 @@
                 </div>
             </div>
             <div class="block">
+                <div class="sun-container">
+                    <svg viewBox="0 0 100 100" class="sun-svg">
+                        <circle cx="50" cy="50" r="48" fill="#FFD700"/>
+                    </svg>
+                </div>
+                <div class="sun-info">
+                    <div id="day-length" class="primary-info"></div>
+                    <div class="secondary-info">
+                        <div id="sunrise-time"></div>
+                        <div id="sunset-time"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="future-months"></div>
+            <div class="block">
                 <div id="calendar">
                     <div id="calendar-header"></div>
                     <table id="calendar-table">
@@ -45,14 +60,15 @@
                     </table>
                 </div>
             </div>
-            <div id="future-months"></div>
         </div>
         <div class="footer">
             Built with <span>❤️</span> by <a href="https://x.com/tadaspadas" target="_blank">@tadaspadas</a>
         </div>
     </div>
+    <script src="js/suncalc.js"></script>
     <script src="js/time.js"></script>
     <script src="js/calendar.js"></script>
     <script src="js/moon.js"></script>
+    <script src="js/sun.js"></script>
 </body>
 </html>
