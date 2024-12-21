@@ -60,3 +60,44 @@ setInterval(() => {
     const clockElement = document.getElementById('clock');
     clockElement.textContent = now.toLocaleTimeString();
 }, 1000);
+
+// Assuming this is where your clock update logic lives
+async function updateTimeDisplay() {
+    // ... existing time update code ...
+
+    // Update location if needed
+    if (!document.getElementById('location-info').textContent) {
+        try {
+            const coords = await locationService.getLocation();
+            const locationName = await locationService.getLocationName(coords.latitude, coords.longitude);
+            if (locationName) {
+                document.getElementById('location-info').textContent = locationName;
+            }
+        } catch (error) {
+            console.error('Error getting location name:', error);
+        }
+    }
+}
+
+async function updateLocationDisplay() {
+    try {
+        const coords = await locationService.getLocation();
+        const locationName = await locationService.getLocationName(coords.latitude, coords.longitude);
+        if (locationName) {
+            const locationElement = document.getElementById('location-info');
+            if (locationElement) {
+                locationElement.textContent = locationName;
+            } else {
+                console.error('Location info element not found');
+            }
+        }
+    } catch (error) {
+        console.error('Error updating location:', error);
+    }
+}
+
+// Add to your initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing initialization code ...
+    updateLocationDisplay(); // Add this line
+});

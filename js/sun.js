@@ -74,6 +74,54 @@ const locationService = {
                 throw ipError;
             }
         }
+    },
+
+    // Add reverse geocoding using OpenStreetMap's Nominatim
+    async getLocationName(latitude, longitude) {
+        try {
+            const cached = localStorage.getItem('locationName');
+            if (cached) {
+                const { name, timestamp } = JSON.parse(cached);
+                // Cache for 30 days
+                if (timestamp && (Date.now() - timestamp) < 30 * 24 * 60 * 60 * 1000) {
+                    return name;
+                }
+            }
+
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+                { headers: { 'Accept-Language': navigator.language || 'en' } }
+            );
+            const data = await response.json();
+            
+            // Extract city and country, fallback to address parts if needed
+            const locationName = this.formatLocationName(data.address);
+            
+            // Cache the result with timestamp
+            localStorage.setItem('locationName', JSON.stringify({
+                name: locationName,
+                timestamp: Date.now()
+            }));
+            
+            return locationName;
+        } catch (error) {
+            console.error('Failed to get location name:', error);
+            return null;
+        }
+    },
+
+    formatLocationName(address) {
+        if (!address) return 'Unknown location';
+        
+        const city = address.city || address.town || address.village || address.suburb;
+        const country = address.country;
+        
+        if (city && country) {
+            return `${city}, ${country}`;
+        } else if (country) {
+            return country;
+        }
+        return 'Unknown location';
     }
 }; 
 
