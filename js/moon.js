@@ -12,47 +12,6 @@ const moonCache = {
     }
 };
 
-// Move API key to environment variable or configuration
-// const NASA_API_KEY = process.env.NASA_API_KEY;
-
-// Fetch from NASA HORIZONS
-async function fetchNASAMoonData() {
-    try {
-        // Instead of using NASA API directly, use Vercel's environment
-        const response = await fetch('/api/nasa/moon');
-        
-        if (!response.ok) {
-            throw new Error(`API returned ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Update cache
-        moonCache.lastUpdate = new Date();
-        moonCache.data = data;
-        
-        return data;
-    } catch (error) {
-        console.error('Failed to fetch moon data:', error);
-        // Fallback to existing calculation method
-        return getMoonPhase(new Date());
-    }
-}
-
-// Schedule next update
-function scheduleNextUpdate() {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    
-    const timeUntilMidnight = tomorrow - now;
-    setTimeout(async () => {
-        await fetchNASAMoonData();
-        scheduleNextUpdate();
-    }, timeUntilMidnight);
-}
-
 // Convert regular date to Julian Date
 function getJulianDate(date) {
     const time = date.getTime();
@@ -153,13 +112,12 @@ window.testMoonPhase = function() {
 };
 
 // Modified initialization
-document.addEventListener('DOMContentLoaded', async function() {
-    // Initial fetch
-    await fetchNASAMoonData();
-    
-    // Schedule next update
-    scheduleNextUpdate();
-    
-    // Update display with cached data
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial update
     updateMoonDisplay(new Date());
+    
+    // Update every 24 hours
+    setInterval(() => {
+        updateMoonDisplay(new Date());
+    }, 24 * 60 * 60 * 1000);
 });
