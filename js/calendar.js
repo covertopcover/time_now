@@ -23,7 +23,21 @@ async function createCalendar(date) {
     currentCalendarContainer.appendChild(calendar);
 }
 
-async function createMonthCalendar(date, isCurrentMonth = false) {
+async function getHolidays(year) {
+    try {
+        const countryCode = await locationService.getCountryCode();
+        if (!countryCode) return null; // Return null if no country code
+
+        const response = await fetch(`/api/holidays?countryCode=${countryCode}&year=${year}`);
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching holidays:', error);
+        return null;
+    }
+}
+
+async function createMonthCalendar(date, isCurrentMonth = false, preloadedHolidays = null) {
     const container = document.createElement('div');
     container.className = isCurrentMonth ? '' : 'block';
     
@@ -34,6 +48,12 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
         year: 'numeric'
     });
     container.appendChild(header);
+    
+    const holidays = preloadedHolidays || await getHolidays(date.getFullYear());
+    
+    const holidayMap = holidays ? new Map(
+        holidays.map(h => [h.date, h.name])
+    ) : new Map();
     
     const table = document.createElement('table');
     table.className = 'calendar-table';
@@ -71,11 +91,23 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
         for (let i = 0; i < 7; i++) {
             const cell = document.createElement('td');
             if (currentDay.getMonth() === date.getMonth()) {
-                if (currentDay.getDay() === 0) {
-                    cell.style.color = '#FF0000';
+                const dateStr = currentDay.toISOString().slice(0, 10);
+                const localDateStr = new Date(currentDay.getTime() - currentDay.getTimezoneOffset() * 60000)
+                    .toISOString()
+                    .slice(0, 10);
+                
+                const isHoliday = holidayMap.has(localDateStr);
+                
+                if (isHoliday || currentDay.getDay() === 0) {
+                    cell.classList.add('holiday-date');
+                }
+                
+                if (isHoliday) {
+                    cell.title = holidayMap.get(localDateStr);
                 }
                 
                 cell.textContent = currentDay.getDate();
+                
                 if (isCurrentMonth && 
                     currentDay.getDate() === date.getDate() && 
                     currentDay.getMonth() === date.getMonth()) {
@@ -98,15 +130,63 @@ async function createFutureMonths(currentDate) {
     const futureMonthsContainer = document.getElementById('future-months');
     futureMonthsContainer.innerHTML = '';
     
-    for (let i = 1; i <= 12; i++) {
-        const futureDate = new Date(currentDate);
-        futureDate.setMonth(currentDate.getMonth() + i);
-        const calendar = await createMonthCalendar(futureDate, false);
-        futureMonthsContainer.appendChild(calendar);
+    // Pre-fetch holidays for the current and next year to avoid multiple API calls
+    const currentYear = currentDate.getFullYear();
+    const nextYear = currentYear + 1;
+    
+    // Create loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.textContent = 'Loading calendars...';
+    futureMonthsContainer.appendChild(loadingDiv);
+    
+    try {
+        // Pre-fetch holidays for both years at once
+        const [currentYearHolidays, nextYearHolidays] = await Promise.all([
+            getHolidays(currentYear),
+            getHolidays(nextYear)
+        ]);
+
+        // Create all calendars at once
+        const calendarPromises = [];
+        for (let i = 1; i <= 12; i++) {
+            const futureDate = new Date(currentDate);
+            futureDate.setMonth(currentDate.getMonth() + i);
+            
+            // Pass the pre-fetched holidays to createMonthCalendar
+            const calendar = createMonthCalendar(
+                futureDate, 
+                false, 
+                futureDate.getFullYear() === currentYear ? currentYearHolidays : nextYearHolidays
+            );
+            calendarPromises.push(calendar);
+        }
+
+        // Wait for all calendars to be created
+        const calendars = await Promise.all(calendarPromises);
+        
+        // Clear container before adding new calendars
+        futureMonthsContainer.innerHTML = '';
+        
+        // Add all calendars to the container
+        calendars.forEach(calendar => {
+            futureMonthsContainer.appendChild(calendar);
+        });
+    } catch (error) {
+        console.error('Error creating future months:', error);
+        futureMonthsContainer.innerHTML = 'Error loading calendars';
+    } finally {
+        // Remove loading indicator
+        loadingDiv.remove();
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Empty initialization
+// Update the initialization code
+document.addEventListener('DOMContentLoaded', async function() {
+    const currentDate = new Date();
+    
+    // Create current and future calendars in parallel
+    await Promise.all([
+        createCalendar(currentDate),
+        createFutureMonths(currentDate)
+    ]);
 });

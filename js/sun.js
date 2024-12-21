@@ -122,6 +122,20 @@ const locationService = {
             return country;
         }
         return 'Unknown location';
+    },
+
+    async getCountryCode() {
+        try {
+            const coords = await this.getLocation();
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
+            );
+            const data = await response.json();
+            return data.address.country_code;
+        } catch (error) {
+            console.error('Failed to get country code:', error);
+            return null; // Return null instead of defaulting to 'lt'
+        }
     }
 }; 
 
