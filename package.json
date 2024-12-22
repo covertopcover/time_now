@@ -5,14 +5,9 @@
     "dev": "node dev-server.js",
     "start": "live-server"
   },
-  "dependencies": {
-    "ntp-time": "^2.0.6",
-    "@googleapis/calendar": "^9.6.0"
-  },
   "devDependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
-    "node-fetch": "^2.7.0"
+    "express": "^4.18.2"
   }
 }

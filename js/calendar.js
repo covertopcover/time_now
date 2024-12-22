@@ -11,36 +11,24 @@ function getWeekNumber(date) {
 }
 
 async function createCalendar(date) {
-    const headerElement = document.getElementById('calendar-header');
-    headerElement.textContent = date.toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric'
-    });
-    
-    const calendar = await createMonthCalendar(date, true);
-    const currentCalendarContainer = document.getElementById('calendar');
-    currentCalendarContainer.innerHTML = '';
-    currentCalendarContainer.appendChild(calendar);
-}
-
-async function getHolidays(year) {
-    try {
-        const countryCode = await locationService.getCountryCode();
-        if (!countryCode) return null; // Return null if no country code
-
-        const response = await fetch(`/api/holidays?countryCode=${countryCode}&year=${year}`);
-        if (!response.ok) return null;
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching holidays:', error);
-        return null;
+    const container = document.getElementById('calendar');
+    if (!container) {
+        console.error('Calendar container not found');
+        return;
     }
+
+    container.innerHTML = '';
+    
+    // Create current month calendar
+    const currentMonthCalendar = await createMonthCalendar(date, true);
+    container.appendChild(currentMonthCalendar);
 }
 
-async function createMonthCalendar(date, isCurrentMonth = false, preloadedHolidays = null) {
+async function createMonthCalendar(date, isCurrentMonth = false) {
     const container = document.createElement('div');
     container.className = isCurrentMonth ? '' : 'block';
     
+    // Create header
     const header = document.createElement('div');
     header.className = 'calendar-header';
     header.textContent = date.toLocaleDateString('en-US', {
@@ -49,76 +37,61 @@ async function createMonthCalendar(date, isCurrentMonth = false, preloadedHolida
     });
     container.appendChild(header);
     
-    const holidays = preloadedHolidays || await getHolidays(date.getFullYear());
-    
-    const holidayMap = holidays ? new Map(
-        holidays.map(h => [h.date, h.name])
-    ) : new Map();
-    
+    // Create table
     const table = document.createElement('table');
     table.className = 'calendar-table';
     
+    // Create header row with weekday names
     const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Wk</th>
-            <th>Mo</th>
-            <th>Tu</th>
-            <th>We</th>
-            <th>Th</th>
-            <th>Fr</th>
-            <th>Sa</th>
-            <th>Su</th>
-        </tr>
-    `;
+    const headerRow = document.createElement('tr');
+    ['Wk', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].forEach(day => {
+        const th = document.createElement('th');
+        th.textContent = day;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
     table.appendChild(thead);
     
+    // Create calendar body
     const tbody = document.createElement('tbody');
-    
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     
     let currentDay = new Date(firstDay);
-    currentDay.setDate(currentDay.getDate() - (firstDay.getDay() || 7) + 1);
+    currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() + 6) % 7));
     
     while (currentDay <= lastDay || currentDay.getDay() !== 1) {
-        const row = document.createElement('tr');
-        
-        const weekNum = document.createElement('td');
-        weekNum.textContent = getWeekNumber(currentDay);
-        row.appendChild(weekNum);
-        
-        for (let i = 0; i < 7; i++) {
-            const cell = document.createElement('td');
-            if (currentDay.getMonth() === date.getMonth()) {
-                const dateStr = currentDay.toISOString().slice(0, 10);
-                const localDateStr = new Date(currentDay.getTime() - currentDay.getTimezoneOffset() * 60000)
-                    .toISOString()
-                    .slice(0, 10);
-                
-                const isHoliday = holidayMap.has(localDateStr);
-                
-                if (isHoliday || currentDay.getDay() === 0) {
-                    cell.classList.add('holiday-date');
-                }
-                
-                if (isHoliday) {
-                    cell.title = holidayMap.get(localDateStr);
-                }
-                
+        if (currentDay.getDay() === 1) {
+            const row = document.createElement('tr');
+            const weekNum = document.createElement('td');
+            weekNum.textContent = getWeekNumber(currentDay);
+            row.appendChild(weekNum);
+            
+            for (let i = 0; i < 7; i++) {
+                const cell = document.createElement('td');
                 cell.textContent = currentDay.getDate();
                 
-                if (isCurrentMonth && 
-                    currentDay.getDate() === date.getDate() && 
-                    currentDay.getMonth() === date.getMonth()) {
-                    cell.classList.add('current-day');
+                if (currentDay.getMonth() === date.getMonth()) {
+                    if (currentDay.getDay() === 0) {
+                        cell.classList.add('sunday');
+                    }
+                    
+                    if (isCurrentMonth && 
+                        currentDay.getDate() === date.getDate() && 
+                        currentDay.getMonth() === date.getMonth()) {
+                        cell.classList.add('current-day');
+                    }
+                } else {
+                    cell.classList.add('other-month');
                 }
+                
+                row.appendChild(cell);
+                currentDay.setDate(currentDay.getDate() + 1);
             }
-            row.appendChild(cell);
+            tbody.appendChild(row);
+        } else {
             currentDay.setDate(currentDay.getDate() + 1);
         }
-        
-        tbody.appendChild(row);
     }
     
     table.appendChild(tbody);
@@ -128,65 +101,24 @@ async function createMonthCalendar(date, isCurrentMonth = false, preloadedHolida
 
 async function createFutureMonths(currentDate) {
     const futureMonthsContainer = document.getElementById('future-months');
+    if (!futureMonthsContainer) return;
+
     futureMonthsContainer.innerHTML = '';
     
-    // Pre-fetch holidays for the current and next year to avoid multiple API calls
-    const currentYear = currentDate.getFullYear();
-    const nextYear = currentYear + 1;
-    
-    // Create loading indicator
-    const loadingDiv = document.createElement('div');
-    loadingDiv.textContent = 'Loading calendars...';
-    futureMonthsContainer.appendChild(loadingDiv);
-    
     try {
-        // Pre-fetch holidays for both years at once
-        const [currentYearHolidays, nextYearHolidays] = await Promise.all([
-            getHolidays(currentYear),
-            getHolidays(nextYear)
-        ]);
-
-        // Create all calendars at once
-        const calendarPromises = [];
+        // Create exactly 12 months ahead
         for (let i = 1; i <= 12; i++) {
-            const futureDate = new Date(currentDate);
-            futureDate.setMonth(currentDate.getMonth() + i);
-            
-            // Pass the pre-fetched holidays to createMonthCalendar
-            const calendar = createMonthCalendar(
-                futureDate, 
-                false, 
-                futureDate.getFullYear() === currentYear ? currentYearHolidays : nextYearHolidays
+            const futureDate = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth() + i,
+                1
             );
-            calendarPromises.push(calendar);
-        }
-
-        // Wait for all calendars to be created
-        const calendars = await Promise.all(calendarPromises);
-        
-        // Clear container before adding new calendars
-        futureMonthsContainer.innerHTML = '';
-        
-        // Add all calendars to the container
-        calendars.forEach(calendar => {
+            
+            const calendar = await createMonthCalendar(futureDate, false);
             futureMonthsContainer.appendChild(calendar);
-        });
+        }
     } catch (error) {
         console.error('Error creating future months:', error);
         futureMonthsContainer.innerHTML = 'Error loading calendars';
-    } finally {
-        // Remove loading indicator
-        loadingDiv.remove();
     }
 }
-
-// Update the initialization code
-document.addEventListener('DOMContentLoaded', async function() {
-    const currentDate = new Date();
-    
-    // Create current and future calendars in parallel
-    await Promise.all([
-        createCalendar(currentDate),
-        createFutureMonths(currentDate)
-    ]);
-});

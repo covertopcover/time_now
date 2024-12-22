@@ -76,7 +76,7 @@ body {
 }
 
 .current-day {
-    background-color: #e7f5ff;
+    background-color: #e6f3ff;
     font-weight: bold;
     color: #228be6;
 }
@@ -281,4 +281,17 @@ body {
 /* Add this new style for holiday dates */
 .holiday-date {
     color: #FF0000 !important; /* Red color for holidays and Sundays */
+}
+
+.sunday {
+    color: red;
+}
+
+.other-month {
+    color: #ccc;
+}
+
+.current-day {
+    background-color: #e6f3ff;
+    font-weight: bold;
 }
