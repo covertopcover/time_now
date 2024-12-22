@@ -1,9 +1,8 @@
 {
   "name": "time_now",
   "version": "1.0.0",
-  "scripts": {
-    "dev": "node dev-server.js",
-    "start": "live-server"
+  "dependencies": {
+    "ntp-time": "^2.0.6"
   },
   "devDependencies": {
     "cors": "^2.8.5",
