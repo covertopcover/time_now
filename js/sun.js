@@ -35,9 +35,9 @@ function updateSunInfo() {
     const dayLength = (times.sunset - times.sunrise) / (1000 * 60);
     
     // Update the display
-    document.getElementById('day-length').textContent = `Day length: ${formatDayLength(dayLength)}`;
-    document.getElementById('sunrise-time').textContent = `Sunrise: ${formatTime(times.sunrise)}`;
-    document.getElementById('sunset-time').textContent = `Sunset: ${formatTime(times.sunset)}`;
+    document.getElementById('day-length').textContent = `Ilgumas: ${formatDayLength(dayLength)}`;
+    document.getElementById('sunrise-time').textContent = `Teka: ${formatTime(times.sunrise)}`;
+    document.getElementById('sunset-time').textContent = `Leidžiasi: ${formatTime(times.sunset)}`;
 }
 
 // Initialize when DOM is loaded

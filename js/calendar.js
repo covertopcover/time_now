@@ -28,7 +28,7 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
     
     const header = document.createElement('div');
     header.className = 'calendar-header';
-    header.textContent = date.toLocaleDateString('en-US', {
+    header.textContent = date.toLocaleDateString('lt-LT', {
         month: 'long',
         year: 'numeric'
     });
@@ -39,7 +39,7 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
     
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    ['Wk', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].forEach(day => {
+    ['Sav', 'Pr', 'An', 'Tr', 'Kt', 'Pn', 'Št', 'Sk'].forEach(day => {
         const th = document.createElement('th');
         th.textContent = day;
         headerRow.appendChild(th);

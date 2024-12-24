@@ -2,13 +2,13 @@ function updateDisplay(date) {
     const dateElement = document.getElementById('date');
     const clockElement = document.getElementById('clock');
     
-    dateElement.textContent = date.toLocaleDateString('en-US', {
+    dateElement.textContent = date.toLocaleDateString('lt-LT', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
-    clockElement.textContent = date.toLocaleTimeString();
+    clockElement.textContent = date.toLocaleTimeString('lt-LT');
 }
 
 function setupMidnightUpdate() {

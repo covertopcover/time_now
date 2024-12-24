@@ -62,16 +62,16 @@ function getMoonPhase(date) {
     const { D, M, Mprime } = getMoonOrbitalElements(T);
     const phase = calculateMoonPhase(date);
     
-    // Simplified phase names
+    // Lithuanian phase names
     let phaseName;
-    if (phase <= 0.0625 || phase > 0.9375) phaseName = 'New Moon';
-    else if (phase <= 0.1875) phaseName = 'Waxing Crescent';
-    else if (phase <= 0.3125) phaseName = 'First Quarter';
-    else if (phase <= 0.4375) phaseName = 'Waxing Gibbous';
-    else if (phase <= 0.5625) phaseName = 'Full Moon';
-    else if (phase <= 0.6875) phaseName = 'Waning Gibbous';
-    else if (phase <= 0.8125) phaseName = 'Last Quarter';
-    else phaseName = 'Waning Crescent';
+    if (phase <= 0.0625 || phase > 0.9375) phaseName = 'Jaunatis';
+    else if (phase <= 0.1875) phaseName = 'Jaunas priešpilnis';
+    else if (phase <= 0.3125) phaseName = 'Priešpilnis';
+    else if (phase <= 0.4375) phaseName = 'Senas priešpilnis';
+    else if (phase <= 0.5625) phaseName = 'Pilnatis';
+    else if (phase <= 0.6875) phaseName = 'Jauna delčia';
+    else if (phase <= 0.8125) phaseName = 'Delčia';
+    else phaseName = 'Sena delčia';
 
     // Simplify full moon calculations
     const daysUntilFull = ((0.5 - phase + (phase > 0.5 ? 1 : 0)) * SYNODIC_MONTH);
@@ -128,7 +128,13 @@ function updateMoonDisplay(date) {
     
     document.getElementById('moon-phase-name').textContent = name;
     document.getElementById('moon-full').textContent = 
-        `Next full moon: ${nextFullMoon.toLocaleDateString()} (in ${daysUntilFullMoon} days)`;
+        `Kita pilnatis: ${nextFullMoon.toLocaleDateString('lt-LT')} (po ${daysUntilFullMoon} ${getLithuanianDayForm(daysUntilFullMoon)})`;
+}
+
+// Helper function to handle Lithuanian day forms
+function getLithuanianDayForm(days) {
+    if (days % 10 === 1 && days % 100 !== 11) return 'dienos';
+    return 'dienų';
 }
 
 // Make test function globally available
