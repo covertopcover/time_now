@@ -33,7 +33,6 @@ body {
     width: 100%;
     box-sizing: border-box;
 }
-
 #calendar {
     min-width: 300px;
 }
@@ -288,5 +287,10 @@ body {
 
 .current-day {
     background-color: #e6f3ff;
+    font-weight: bold;
+}
+
+.holiday {
+    color: red;
     font-weight: bold;
 }

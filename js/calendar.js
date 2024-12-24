@@ -10,7 +10,7 @@ function getWeekNumber(date) {
     return weekNum > 52 ? 52 : weekNum;
 }
 
-async function createCalendar(date) {
+window.createCalendar = async function(date) {
     const container = document.getElementById('calendar');
     if (!container) {
         console.error('Calendar container not found');
@@ -18,8 +18,6 @@ async function createCalendar(date) {
     }
 
     container.innerHTML = '';
-    
-    // Create current month calendar
     const currentMonthCalendar = await createMonthCalendar(date, true);
     container.appendChild(currentMonthCalendar);
 }
@@ -28,7 +26,6 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
     const container = document.createElement('div');
     container.className = isCurrentMonth ? '' : 'block';
     
-    // Create header
     const header = document.createElement('div');
     header.className = 'calendar-header';
     header.textContent = date.toLocaleDateString('en-US', {
@@ -37,11 +34,9 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
     });
     container.appendChild(header);
     
-    // Create table
     const table = document.createElement('table');
     table.className = 'calendar-table';
     
-    // Create header row with weekday names
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
     ['Wk', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].forEach(day => {
@@ -52,7 +47,6 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
     thead.appendChild(headerRow);
     table.appendChild(thead);
     
-    // Create calendar body
     const tbody = document.createElement('tbody');
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
@@ -69,9 +63,23 @@ async function createMonthCalendar(date, isCurrentMonth = false) {
             
             for (let i = 0; i < 7; i++) {
                 const cell = document.createElement('td');
+                
+                // Create date string in Lithuanian timezone
+                const dateString = currentDay.toLocaleString('lt-LT', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    timeZone: 'Europe/Vilnius'
+                }).split(' ')[0].split('.').reverse().join('-');
+                
                 cell.textContent = currentDay.getDate();
                 
                 if (currentDay.getMonth() === date.getMonth()) {
+                    if (window.LithuanianHolidays && window.LithuanianHolidays.isHoliday(dateString)) {
+                        cell.classList.add('holiday');
+                        cell.title = window.LithuanianHolidays.getHolidayName(dateString);
+                    }
+                    
                     if (currentDay.getDay() === 0) {
                         cell.classList.add('sunday');
                     }
@@ -106,7 +114,12 @@ async function createFutureMonths(currentDate) {
     futureMonthsContainer.innerHTML = '';
     
     try {
-        // Create exactly 12 months ahead
+        // Make sure holidays are loaded before creating future months
+        if (!window.LithuanianHolidays) {
+            console.error('Lithuanian holidays not initialized');
+            return;
+        }
+
         for (let i = 1; i <= 12; i++) {
             const futureDate = new Date(
                 currentDate.getFullYear(),
@@ -122,3 +135,12 @@ async function createFutureMonths(currentDate) {
         futureMonthsContainer.innerHTML = 'Error loading calendars';
     }
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+    if (window.LithuanianHolidays) {
+        await window.LithuanianHolidays.loadHolidays();
+        const currentDate = new Date();
+        await createCalendar(currentDate);
+        await createFutureMonths(currentDate);
+    }
+});

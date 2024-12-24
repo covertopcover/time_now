@@ -30,11 +30,18 @@ function setupMidnightUpdate() {
 async function fetchTime() {
     try {
         const response = await fetch('/api/time');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
         
+        // Check if response is OK and is JSON
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Not a JSON response');
+        }
+
+        const data = await response.json();
         if (!data.timestamp) {
             throw new Error('Invalid timestamp received');
         }
@@ -43,21 +50,15 @@ async function fetchTime() {
         updateDisplay(date);
         
         if (!window.calendarInitialized) {
-            createCalendar(date);
-            createFutureMonths(date);
-            updateMoonDisplay(date);
             window.calendarInitialized = true;
             setupMidnightUpdate();
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Using local time due to API error:', error);
         const fallbackDate = new Date();
         updateDisplay(fallbackDate);
         
         if (!window.calendarInitialized) {
-            createCalendar(fallbackDate);
-            createFutureMonths(fallbackDate);
-            updateMoonDisplay(fallbackDate);
             window.calendarInitialized = true;
             setupMidnightUpdate();
         }
