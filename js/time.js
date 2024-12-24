@@ -11,6 +11,22 @@ function updateDisplay(date) {
     clockElement.textContent = date.toLocaleTimeString();
 }
 
+function setupMidnightUpdate() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timeUntilMidnight = tomorrow - now;
+    
+    setTimeout(() => {
+        const date = new Date();
+        updateDisplay(date);
+        createCalendar(date);
+        createFutureMonths(date);
+        updateMoonDisplay(date);
+        // Schedule next midnight update
+        setupMidnightUpdate();
+    }, timeUntilMidnight);
+}
+
 async function fetchTime() {
     try {
         const response = await fetch('/api/time');
@@ -60,66 +76,3 @@ setInterval(() => {
     const clockElement = document.getElementById('clock');
     clockElement.textContent = now.toLocaleTimeString();
 }, 1000);
-
-// Assuming this is where your clock update logic lives
-async function updateTimeDisplay() {
-    // ... existing time update code ...
-
-    // Update location if needed
-    if (!document.getElementById('location-info').textContent) {
-        try {
-            const coords = await locationService.getLocation();
-            const locationName = await locationService.getLocationName(coords.latitude, coords.longitude);
-            if (locationName) {
-                document.getElementById('location-info').textContent = locationName;
-            }
-        } catch (error) {
-            console.error('Error getting location name:', error);
-        }
-    }
-}
-
-async function updateLocationDisplay() {
-    try {
-        const coords = await locationService.getLocation();
-        const locationName = await locationService.getLocationName(coords.latitude, coords.longitude);
-        if (locationName) {
-            const locationElement = document.getElementById('location-info');
-            if (locationElement) {
-                locationElement.textContent = locationName;
-            } else {
-                console.error('Location info element not found');
-            }
-        }
-    } catch (error) {
-        console.error('Error updating location:', error);
-    }
-}
-
-// Add to your initialization
-document.addEventListener('DOMContentLoaded', function() {
-    // ... existing initialization code ...
-    updateLocationDisplay(); // Add this line
-});
-
-function setupMidnightUpdate() {
-    const now = new Date();
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const timeUntilMidnight = tomorrow - now;
-    
-    // Update at midnight
-    setTimeout(() => {
-        const date = new Date();
-        createCalendar(date);
-        createFutureMonths(date);
-        updateMoonDisplay(date);
-        
-        // Schedule next update in 24 hours
-        setInterval(() => {
-            const newDate = new Date();
-            createCalendar(newDate);
-            createFutureMonths(newDate);
-            updateMoonDisplay(newDate);
-        }, 24 * 60 * 60 * 1000);
-    }, timeUntilMidnight);
-}
