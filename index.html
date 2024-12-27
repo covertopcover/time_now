@@ -17,6 +17,19 @@
                 <div id="location-info" class="moon-info"></div>
             </div>
             <div class="block">
+                <div class="block-title">Vardadieniai</div>
+                <div class="namedays-container">
+                    <div class="nameday-row">
+                        <span class="nameday-label">Šiandien:</span>
+                        <span id="today-names"></span>
+                    </div>
+                    <div class="nameday-row">
+                        <span class="nameday-label">Rytoj:</span>
+                        <span id="tomorrow-names"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="block">
                 <div class="moon-container">
                     <svg viewBox="0 0 100 100" class="moon-svg">
                         <circle cx="50" cy="50" r="48" fill="#FCFCFC"/>
@@ -71,5 +84,13 @@
     <script src="js/calendar.js"></script>
     <script src="js/moon.js"></script>
     <script src="js/sun.js"></script>
+    <script src="js/namedays.js"></script>
+    <script>
+        // Initialize after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameDays = new NameDays();
+            nameDays.init();
+        });
+    </script>
 </body>
 </html>

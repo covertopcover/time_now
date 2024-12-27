@@ -294,3 +294,31 @@ body {
     color: red;
     font-weight: bold;
 }
+
+.block-title {
+    font-size: 1.2em;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.namedays-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 10px;
+}
+
+.nameday-row {
+    display: flex;
+    gap: 8px;
+    font-size: 0.95em;
+    color: #333;
+    line-height: 1.4;
+}
+
+.nameday-label {
+    font-weight: 500;
+    white-space: nowrap;
+}
