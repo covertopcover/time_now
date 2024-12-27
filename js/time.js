@@ -11,22 +11,6 @@ function updateDisplay(date) {
     clockElement.textContent = date.toLocaleTimeString('lt-LT');
 }
 
-function setupMidnightUpdate() {
-    const now = new Date();
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const timeUntilMidnight = tomorrow - now;
-    
-    setTimeout(() => {
-        const date = new Date();
-        updateDisplay(date);
-        createCalendar(date);
-        createFutureMonths(date);
-        updateMoonDisplay(date);
-        // Schedule next midnight update
-        setupMidnightUpdate();
-    }, timeUntilMidnight);
-}
-
 async function fetchTime() {
     try {
         const response = await fetch('/api/time');
@@ -49,31 +33,25 @@ async function fetchTime() {
         const date = new Date(Number(data.timestamp));
         updateDisplay(date);
         
-        if (!window.calendarInitialized) {
-            window.calendarInitialized = true;
-            setupMidnightUpdate();
+        // Check if day changed and update related displays
+        if (date.getHours() === 0 && date.getMinutes() === 0) {
+            createCalendar(date);
+            createFutureMonths(date);
+            updateMoonDisplay(date);
         }
     } catch (error) {
         console.error('Using local time due to API error:', error);
         const fallbackDate = new Date();
         updateDisplay(fallbackDate);
-        
-        if (!window.calendarInitialized) {
-            window.calendarInitialized = true;
-            setupMidnightUpdate();
-        }
     }
 }
 
-// Initial fetch
+// Initial fetch only
 fetchTime();
-
-// Update time every 5 minutes
-setInterval(fetchTime, 300000);
 
 // Update clock every second using local time
 setInterval(() => {
     const now = new Date();
     const clockElement = document.getElementById('clock');
-    clockElement.textContent = now.toLocaleTimeString();
+    clockElement.textContent = now.toLocaleTimeString('lt-LT');
 }, 1000);
