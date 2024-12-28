@@ -265,13 +265,6 @@ body {
     margin-top: 4px;
 }
 
-#location-info {
-    font-size: 16px;
-    text-align: center;
-    color: #666;
-    margin-top: 4px;
-}
-
 /* Add this new style for holiday dates */
 .holiday-date {
     color: #FF0000 !important; /* Red color for holidays and Sundays */
@@ -321,4 +314,55 @@ body {
 .nameday-label {
     font-weight: 500;
     white-space: nowrap;
+}
+
+#weather-container {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.weather-day {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.weather-day:last-child {
+    border-bottom: none;
+}
+
+.weather-date {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+}
+
+.weather-time {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.weather-temp {
+    font-size: 1.2em;
+    color: #333;
+    font-weight: 500;
+}
+
+.weather-condition {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.block-title {
+    font-size: 1.2em;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 500;
 }

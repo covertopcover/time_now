@@ -2,6 +2,7 @@
   "name": "time_now",
   "version": "1.0.0",
   "dependencies": {
+    "node-fetch": "^2.6.9",
     "ntp-time": "^2.0.6"
   },
   "devDependencies": {

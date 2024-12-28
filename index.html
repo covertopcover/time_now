@@ -20,7 +20,16 @@
             <div class="block">
                 <div id="clock"></div>
                 <div id="date"></div>
-                <div id="location-info" class="moon-info"></div>
+            </div>
+            <div class="block">
+                <div id="user-city"></div>
+            </div>
+            <!-- Add this where you want the weather to appear -->
+            <div id="weather-container">
+                <h2>Orai</h2>
+                <div id="weather-forecast">
+                    <div class="weather-loading">Loading weather data...</div>
+                </div>
             </div>
             <div class="block">
                 <div class="block-title">Vardadieniai</div>
@@ -92,12 +101,7 @@
     <script src="js/sun.js"></script>
     <script src="js/namedays.js"></script>
     <script src="js/tracking.js"></script>
-    <script>
-        // Initialize after DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            const nameDays = new NameDays();
-            nameDays.init();
-        });
-    </script>
+    <script src="js/location.js"></script>
+    <script src="js/weather.js"></script>
 </body>
 </html>
