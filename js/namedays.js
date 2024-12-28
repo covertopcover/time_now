@@ -36,6 +36,8 @@ class NameDays {
     }
 }
 
-// Initialize
-const nameDays = new NameDays();
-nameDays.init(); 
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const nameDays = new NameDays();
+    nameDays.init();
+}); 
