@@ -6,19 +6,18 @@ class LocationService {
             return savedCity;
         }
 
-        if (!navigator.geolocation) {
-            throw new Error('Geolocation is not supported by your browser');
-        }
-
         try {
+            if (!navigator.geolocation) {
+                return 'Vilnius';  // Proper capitalization
+            }
+
             const position = await new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: false,  // City-level accuracy is sufficient
+                    enableHighAccuracy: false,
                     timeout: 5000
                 });
             });
 
-            // Convert coordinates to city name using OpenStreetMap
             const response = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?` +
                 `lat=${position.coords.latitude}&` +
@@ -27,9 +26,8 @@ class LocationService {
             );
 
             const data = await response.json();
-            const city = data.address.city || data.address.town || null;
+            const city = data.address.city || data.address.town || 'Vilnius';  // Proper capitalization
             
-            // Save city to localStorage if found
             if (city) {
                 localStorage.setItem('userCity', city);
             }
@@ -37,8 +35,7 @@ class LocationService {
             return city;
             
         } catch (error) {
-            console.error('Failed to get user location:', error);
-            return null;
+            return 'Vilnius';  // Proper capitalization
         }
     }
 } 
