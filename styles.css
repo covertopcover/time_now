@@ -409,3 +409,14 @@ body {
 .weather-attribution a:hover {
     text-decoration: underline;
 }
+
+.weather-slots {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.weather-time-slot {
+    text-align: center;
+}

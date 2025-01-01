@@ -1,11 +1,37 @@
 class WeatherService {
     constructor() {
         this.baseUrl = '/api/weather';
+        this.conditionTranslations = {
+            'clear': 'giedra',
+            'partly-cloudy': 'mažai debesuota',
+            'cloudy-with-sunny-intervals': 'debesuota su pragiedruliais',
+            'cloudy': 'debesuota',
+            'light-rain': 'nedidelis lietus',
+            'rain': 'lietus',
+            'heavy-rain': 'smarkus lietus',
+            'thunder': 'perkūnija',
+            'isolated-thunderstorms': 'trumpas lietus su perkūnija',
+            'thunderstorms': 'lietus su perkūnija',
+            'heavy-rain-with-thunderstorms': 'smarkus lietus su perkūnija',
+            'light-sleet': 'nedidelė šlapdriba',
+            'sleet': 'šlapdriba',
+            'freezing-rain': 'lijundra',
+            'hail': 'kruša',
+            'light-snow': 'nedidelis sniegas',
+            'snow': 'sniegas',
+            'heavy-snow': 'smarkus sniegas',
+            'fog': 'rūkas',
+            'null': 'oro sąlygos nenustatytos'
+        };
     }
 
     formatPlaceCode(city) {
         if (!city) return null;
         return city.toLowerCase().trim();
+    }
+
+    translateCondition(code) {
+        return this.conditionTranslations[code] || 'oro sąlygos nenustatytos';
     }
 
     async getForecast(city) {
@@ -29,8 +55,12 @@ class WeatherService {
         const container = document.getElementById('weather-forecast');
         if (!container) return;
 
-        const today = new Date();
+        const now = new Date();
+        const today = new Date(now);
         today.setHours(0, 0, 0, 0);
+        
+        const targetHours = [0, 9, 15, 21];
+        const currentHour = now.getHours();
 
         const forecasts = data.forecastTimestamps
             .filter(forecast => {
@@ -41,24 +71,67 @@ class WeatherService {
             .reduce((acc, forecast) => {
                 const date = new Date(forecast.forecastTimeUtc);
                 const dateStr = date.toLocaleDateString('lt-LT');
+                const hour = date.getHours();
                 
-                if (!acc[dateStr] || 
-                    Math.abs(date.getHours() - 13) < 
-                    Math.abs(new Date(acc[dateStr].forecastTimeUtc).getHours() - 13)) {
-                    acc[dateStr] = forecast;
+                if (!acc[dateStr]) {
+                    acc[dateStr] = {
+                        date: date,
+                        timeSlots: {}
+                    };
                 }
+
+                // For current day
+                if (date.getDate() === now.getDate()) {
+                    // Add current hour forecast
+                    if (Math.abs(hour - currentHour) < 
+                        Math.abs(new Date(acc[dateStr].timeSlots[currentHour]?.forecastTimeUtc || 0).getHours() - currentHour)) {
+                        acc[dateStr].timeSlots[currentHour] = forecast;
+                    }
+                    
+                    // Add only future target hours
+                    targetHours.forEach(targetHour => {
+                        if (targetHour > currentHour) {
+                            if (!acc[dateStr].timeSlots[targetHour] ||
+                                Math.abs(hour - targetHour) < 
+                                Math.abs(new Date(acc[dateStr].timeSlots[targetHour].forecastTimeUtc).getHours() - targetHour)) {
+                                acc[dateStr].timeSlots[targetHour] = forecast;
+                            }
+                        }
+                    });
+                } 
+                // For future days, include all target hours
+                else {
+                    targetHours.forEach(targetHour => {
+                        if (!acc[dateStr].timeSlots[targetHour] ||
+                            Math.abs(hour - targetHour) < 
+                            Math.abs(new Date(acc[dateStr].timeSlots[targetHour]?.forecastTimeUtc || 0).getHours() - targetHour)) {
+                            acc[dateStr].timeSlots[targetHour] = forecast;
+                        }
+                    });
+                }
+
                 return acc;
             }, {});
 
         const html = Object.values(forecasts)
-            .map(forecast => {
-                const date = new Date(forecast.forecastTimeUtc);
+            .map(dayForecast => {
+                const slots = Object.entries(dayForecast.timeSlots)
+                    .sort(([hourA], [hourB]) => Number(hourA) - Number(hourB))
+                    .map(([hour, forecast]) => {
+                        const date = new Date(forecast.forecastTimeUtc);
+                        return `
+                            <div class="weather-time-slot">
+                                <div class="weather-time">${date.toLocaleTimeString('lt-LT', { hour: '2-digit', minute: '2-digit' })}</div>
+                                <div class="weather-temp">${Math.round(forecast.airTemperature)}°C</div>
+                                <div class="weather-condition">${this.translateCondition(forecast.conditionCode)}</div>
+                            </div>
+                        `;
+                    }).join('');
+
                 return `
                     <div class="weather-day">
-                        <div class="weather-date">${date.toLocaleDateString('lt-LT', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
-                        <div class="weather-time">${date.toLocaleTimeString('lt-LT', { hour: '2-digit', minute: '2-digit' })}</div>
-                        <div class="weather-temp">${forecast.airTemperature.toFixed(1)}°C</div>
-                        <div class="weather-condition">${forecast.conditionCode}</div>
+                        <div class="weather-date">${dayForecast.date.toLocaleDateString('lt-LT', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+                        <div class="weather-slots">${slots}</div>
                     </div>
                 `;
             })
