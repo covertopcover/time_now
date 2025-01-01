@@ -393,3 +393,19 @@ body {
 .photo-attribution a:hover {
     text-decoration: underline;
 }
+
+.weather-attribution {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 8px;
+    text-align: right;
+}
+
+.weather-attribution a {
+    color: #228be6;
+    text-decoration: none;
+}
+
+.weather-attribution a:hover {
+    text-decoration: underline;
+}
