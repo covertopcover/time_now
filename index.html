@@ -15,7 +15,15 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-5S2F5FLR18');
+  // Add localhost filter
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    gtag('config', 'G-5S2F5FLR18', {
+      'debug_mode': true,
+      'send_page_view': false
+    });
+  } else {
+    gtag('config', 'G-5S2F5FLR18');
+  }
 </script>
 </head>
 <body>
