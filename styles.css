@@ -6,12 +6,17 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .page-container {
     flex: 1;
     padding: 10px;
     box-sizing: border-box;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .container {
@@ -22,6 +27,34 @@ body {
     width: 100%;
     max-width: 380px;
     margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Add media query for mobile devices */
+@media screen and (max-width: 380px) {
+    .page-container {
+        padding: 5px;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 5px;
+    }
+
+    #calendar-table,
+    .calendar-table {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #calendar-table th,
+    #calendar-table td,
+    .calendar-table th,
+    .calendar-table td {
+        padding: 4px;
+        width: 12.5%;
+        box-sizing: border-box;
+    }
 }
 
 .block {
@@ -32,9 +65,11 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     width: 100%;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 #calendar {
-    min-width: 300px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #calendar-header {
@@ -51,6 +86,9 @@ body {
     border-collapse: collapse;
     background: white;
     font-size: 0.9em;
+    table-layout: fixed;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 #calendar-table th,
