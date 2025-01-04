@@ -59,7 +59,7 @@ class WeatherService {
         const today = new Date(now);
         today.setHours(0, 0, 0, 0);
         
-        const targetHours = [0, 9, 15, 21];
+        const targetHours = [3, 9, 15, 21];
         const currentHour = now.getHours();
 
         const forecasts = data.forecastTimestamps
