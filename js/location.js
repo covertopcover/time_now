@@ -43,12 +43,12 @@ class LocationService {
 // Test the location service when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     const locationService = new LocationService();
-    const cityElement = document.getElementById('user-city');
+    const cityNameElement = document.querySelector('.city-name');
     
     try {
         const city = await locationService.getUserCity();
-        cityElement.textContent = city ? `Your city: ${city}` : 'Location not available';
+        cityNameElement.textContent = city || 'Location not available';
     } catch (error) {
-        cityElement.textContent = 'Could not get location';
+        cityNameElement.textContent = 'Could not get location';
     }
 }); 
