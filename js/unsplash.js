@@ -5,7 +5,9 @@ class UnsplashService {
 
     async getRandomPhoto() {
         try {
-            const response = await fetch(this.baseUrl);
+            const response = await fetch(this.baseUrl, {
+                credentials: 'omit' // Don't send cookies
+            });
             if (!response.ok) throw new Error('Failed to fetch photo');
             
             const data = await response.json();
@@ -22,7 +24,11 @@ class UnsplashService {
         const attribution = document.getElementById('photo-attribution');
         
         if (img && attribution) {
-            img.src = data.url;
+            // Add cache-busting parameter to prevent cookie warnings
+            const imgUrl = new URL(data.url);
+            imgUrl.searchParams.append('_nc', Date.now());
+            
+            img.src = imgUrl.toString();
             attribution.innerHTML = `Nuotrauka: <a href="${data.authorUrl}" target="_blank" rel="noopener noreferrer">${data.author}</a> / <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Unsplash</a>`;
         }
     }

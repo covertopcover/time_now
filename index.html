@@ -11,19 +11,28 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5S2F5FLR18"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  // Add localhost filter
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    gtag('config', 'G-5S2F5FLR18', {
-      'debug_mode': true,
-      'send_page_view': false
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    
+    // Default to denied until consent is given
+    gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied'
     });
-  } else {
-    gtag('config', 'G-5S2F5FLR18');
-  }
+    
+    // Add localhost filter and configure for first-party cookies
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        gtag('config', 'G-5S2F5FLR18', {
+            'debug_mode': true,
+            'send_page_view': false,
+            'cookie_flags': 'SameSite=Strict;Secure'
+        });
+    } else {
+        gtag('config', 'G-5S2F5FLR18', {
+            'cookie_flags': 'SameSite=Strict;Secure'
+        });
+    }
 </script>
 </head>
 <body>
@@ -119,6 +128,12 @@
                 </div>
             </div>
             <div id="future-months"></div>
+            <div id="cookie-consent" class="cookie-banner">
+                <p>Mes naudojame slapukus, kad pagerintume jūsų naršymo patirtį. 
+                   <button id="accept-cookies">Sutinku</button>
+                   <button id="reject-cookies">Nesutinku</button>
+                </p>
+            </div>
         </div>
     </div>
     <script src="js/suncalc.js"></script>
@@ -131,5 +146,6 @@
     <script src="js/location.js"></script>
     <script src="js/weather.js"></script>
     <script src="js/unsplash.js"></script>
+    <script src="js/cookies.js"></script>
 </body>
 </html>
