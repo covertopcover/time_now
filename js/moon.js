@@ -39,15 +39,8 @@ function getMoonOrbitalElements(T) {
 
 // Calculate basic moon phase without full moon prediction
 function calculateMoonPhase(date) {
-    const jd = getJulianDate(date);
-    const T = getJulianCentury(jd);
-    const { D, M, Mprime } = getMoonOrbitalElements(T);
-    
-    // Normalize to range 0-360
-    const normalizedD = D % 360;
-    
-    // Convert to phase (0-1)
-    return normalizedD / 360;
+    const moonIllumination = SunCalc.getMoonIllumination(date);
+    return moonIllumination.phase;
 }
 
 // Main function to get moon phase and details
@@ -91,32 +84,25 @@ function getMoonPhase(date) {
 }
 
 function generateMoonShadowPath(phase) {
-    const r = 48; // radius should match the circle radius
-    const cx = 50; // center x
-    const cy = 50; // center y
+    const r = 48;
+    const cx = 50;
+    const cy = 50;
     
-    // Normalize phase to handle edge cases
     const normalizedPhase = phase % 1;
+    const x = cx + r * Math.cos(2 * Math.PI * normalizedPhase);
     
-    if (normalizedPhase <= 0.5) {
-        // Waxing moon (new to full) - shadow moves right to left
-        const x = cx - r * Math.cos(2 * Math.PI * normalizedPhase);
-        return `
-            M ${cx},${cy - r}
-            A ${r},${r} 0 1,0 ${cx},${cy + r}
-            A ${Math.abs(x - cx)},${r} 0 0,0 ${cx},${cy - r}
-            Z
-        `;
-    } else {
-        // Waning moon (full to new) - shadow moves left to right
-        const x = cx - r * Math.cos(2 * Math.PI * normalizedPhase);
-        return `
-            M ${cx},${cy - r}
-            A ${r},${r} 0 1,1 ${cx},${cy + r}
-            A ${Math.abs(x - cx)},${r} 0 0,1 ${cx},${cy - r}
-            Z
-        `;
-    }
+    // Single path for both waxing and waning
+    return `
+        M ${cx},${cy - r}
+        A ${r},${r} 0 1,1 ${cx},${cy + r}
+        A ${r},${r} 0 0,1 ${cx},${cy - r}
+        Z
+        M ${cx},${cy - r}
+        A ${Math.abs(x - cx)},${r} 0 0,${normalizedPhase <= 0.5 ? 0 : 1} ${x},${cy}
+        A ${Math.abs(x - cx)},${r} 0 0,${normalizedPhase <= 0.5 ? 0 : 1} ${cx},${cy + r}
+        A ${r},${r} 0 0,${normalizedPhase <= 0.5 ? 0 : 1} ${cx},${cy - r}
+        Z
+    `;
 }
 
 function updateMoonDisplay(date) {
