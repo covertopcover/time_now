@@ -84,25 +84,32 @@ function getMoonPhase(date) {
 }
 
 function generateMoonShadowPath(phase) {
-    const r = 48;
-    const cx = 50;
-    const cy = 50;
-    
-    const normalizedPhase = phase % 1;
-    const x = cx + r * Math.cos(2 * Math.PI * normalizedPhase);
-    
-    // Single path for both waxing and waning
-    return `
-        M ${cx},${cy - r}
-        A ${r},${r} 0 1,1 ${cx},${cy + r}
-        A ${r},${r} 0 0,1 ${cx},${cy - r}
-        Z
-        M ${cx},${cy - r}
-        A ${Math.abs(x - cx)},${r} 0 0,${normalizedPhase <= 0.5 ? 0 : 1} ${x},${cy}
-        A ${Math.abs(x - cx)},${r} 0 0,${normalizedPhase <= 0.5 ? 0 : 1} ${cx},${cy + r}
-        A ${r},${r} 0 0,${normalizedPhase <= 0.5 ? 0 : 1} ${cx},${cy - r}
-        Z
-    `;
+    if (phase <= 0.0625 || phase > 0.9375) {
+        // New Moon - empty path for black
+        return "";
+    } else if (phase <= 0.1875) {
+        // Waxing Crescent - working correctly
+        return "M50,2 a48,48 0 1,1 0,96 a30,48 0 1,0 0,-96";
+    } else if (phase <= 0.3125) {
+        // First Quarter - working correctly
+        return "M50,2 a48,48 0 1,1 0,96 L50,2 Z";
+    } else if (phase <= 0.4375) {
+        // Waxing Gibbous - working correctly
+        return "M50,2 a48,48 0 1,1 0,96 a20,48 0 0,1 0,-96";
+    } else if (phase <= 0.5625) {
+        // Full Moon - working correctly
+        return "M50,2 a48,48 0 1,1 0,96 a48,48 0 1,1 0,-96";
+    } else if (phase <= 0.6875) {
+        // Waning Gibbous - working correctly
+        return "M50,2 a48,48 0 0,0 0,96 a20,48 0 0,0 0,-96";
+    } else if (phase <= 0.8125) {
+        // Last Quarter - working correctly
+        return "M50,2 a48,48 0 0,0 0,96 L50,2 Z";
+    } else if (phase <= 0.9375) {
+        // Waning Crescent - small white on left
+        return "M50,2 a48,48 0 0,0 0,96 a30,48 0 0,1 0,-96";
+    }
+    return "";
 }
 
 function updateMoonDisplay(date) {
@@ -122,12 +129,6 @@ function getLithuanianDayForm(days) {
     if (days % 10 === 1 && days % 100 !== 11) return 'dienos';
     return 'dienų';
 }
-
-// Make test function globally available
-window.testMoonPhase = function() {
-    const result = getMoonPhase(new Date());
-    console.log('Test Results:', result);
-};
 
 // Modified initialization
 document.addEventListener('DOMContentLoaded', function() {
