@@ -535,3 +535,65 @@ body {
     background: #6c757d;
     color: white;
 }
+.search-icon {
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.search-icon:hover path {
+    fill: #333333;
+}
+
+.city-input {
+    display: none;
+    width: 140px;  /* Reduced width for mobile */
+    height: 24px;
+    border: none;
+    border-bottom: 1px solid #666;
+    background: transparent;
+    font-size: inherit;
+    padding: 0 4px;
+    outline: none;
+    margin-left: 4px;  /* Reduced space after pin */
+}
+
+/* Make bottom border match input width */
+.city-input::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #666;
+}
+
+/* Responsive adjustments */
+@media screen and (min-width: 768px) {
+    .city-input {
+        width: 200px;  /* Larger width for desktop */
+    }
+}
+
+/* Keep the input and pin right-aligned when active */
+#user-city.search-active {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.city-input.active {
+    display: block;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

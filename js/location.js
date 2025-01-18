@@ -1,6 +1,12 @@
 class LocationService {
     async getUserCity() {
-        // First check localStorage
+        // Check cookies first (using js-cookie library or native approach)
+        const cookieCity = this.getCityFromCookie();
+        if (cookieCity) {
+            return cookieCity;
+        }
+
+        // If no cookie, check localStorage (as fallback)
         const savedCity = localStorage.getItem('userCity');
         if (savedCity) {
             return savedCity;
@@ -8,7 +14,7 @@ class LocationService {
 
         try {
             if (!navigator.geolocation) {
-                return 'Vilnius';  // Proper capitalization
+                return 'Vilnius';
             }
 
             const position = await new Promise((resolve, reject) => {
@@ -26,19 +32,25 @@ class LocationService {
             );
 
             const data = await response.json();
-            const city = data.address.city || data.address.town || 'Vilnius';  // Proper capitalization
+            const city = data.address.city || data.address.town || 'Vilnius';
             
-            if (city) {
-                localStorage.setItem('userCity', city);
-            }
-
             return city;
             
         } catch (error) {
-            return 'Vilnius';  // Proper capitalization
+            return 'Vilnius';
         }
     }
-} 
+
+    getCityFromCookie() {
+        // Get userCity from cookie
+        const cookies = document.cookie.split(';');
+        const cityCookie = cookies.find(cookie => cookie.trim().startsWith('userCity='));
+        if (cityCookie) {
+            return decodeURIComponent(cityCookie.split('=')[1]);
+        }
+        return null;
+    }
+}
 
 // Test the location service when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
