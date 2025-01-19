@@ -23,9 +23,13 @@
             'ad_storage': 'denied'
         });
 
-        // Initialize GA with secure cookie settings
+        // Initialize GA with first-party cookies only
         gtag('config', 'G-5S2F5FLR18', {
-            'cookie_flags': 'SameSite=Strict;Secure'
+            'cookie_flags': 'SameSite=Strict;Secure',
+            'cookie_domain': window.location.hostname,
+            'cookie_update': false,
+            'client_storage': 'none',  // Disable third-party storage
+            'storage': 'none'          // Use first-party cookies only
         });
     }
 </script>
