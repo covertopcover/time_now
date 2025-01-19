@@ -1,7 +1,25 @@
 class CookieManager {
     constructor() {
         this.cookieConsent = document.getElementById('cookie-consent');
+        this.COOKIE_VERSION = '2';  // Add version number
+        this.resetIfOldVersion();   // Check version before initializing
         this.initializeCookieConsent();
+    }
+
+    resetIfOldVersion() {
+        const currentVersion = this.getCookie('cookieVersion');
+        if (!currentVersion || currentVersion !== this.COOKIE_VERSION) {
+            // Clear old cookies
+            this.deleteCookie('cookieConsent');
+            this.deleteCookie('cookieVersion');
+            
+            // Reset analytics state
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                gtag('consent', 'update', {
+                    'analytics_storage': 'denied'
+                });
+            }
+        }
     }
 
     initializeCookieConsent() {
@@ -11,15 +29,21 @@ class CookieManager {
 
         document.getElementById('accept-cookies').addEventListener('click', () => {
             this.setCookie('cookieConsent', 'accepted', 365);
+            this.setCookie('cookieVersion', this.COOKIE_VERSION, 365);
             this.cookieConsent.classList.remove('visible');
             this.initializeAnalytics();
         });
 
         document.getElementById('reject-cookies').addEventListener('click', () => {
             this.setCookie('cookieConsent', 'rejected', 365);
+            this.setCookie('cookieVersion', this.COOKIE_VERSION, 365);
             this.cookieConsent.classList.remove('visible');
             this.disableAnalytics();
         });
+    }
+
+    deleteCookie(name) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Strict;Secure`;
     }
 
     setCookie(name, value, days) {

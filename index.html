@@ -11,24 +11,19 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5S2F5FLR18"></script>
 <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    
-    // Default to denied until consent is given
-    gtag('consent', 'default', {
-        'analytics_storage': 'denied',
-        'ad_storage': 'denied'
-    });
-    
-    // Add localhost filter and configure for first-party cookies
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        gtag('config', 'G-5S2F5FLR18', {
-            'debug_mode': true,
-            'send_page_view': false,
-            'cookie_flags': 'SameSite=Strict;Secure'
+    // Only initialize GA if not on localhost
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Default to denied until consent is given
+        gtag('consent', 'default', {
+            'analytics_storage': 'denied',
+            'ad_storage': 'denied'
         });
-    } else {
+
+        // Initialize GA with secure cookie settings
         gtag('config', 'G-5S2F5FLR18', {
             'cookie_flags': 'SameSite=Strict;Secure'
         });
