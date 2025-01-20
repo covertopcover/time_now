@@ -1,20 +1,25 @@
 class CookieManager {
     constructor() {
         this.cookieConsent = document.getElementById('cookie-consent');
-        this.COOKIE_VERSION = '2';  // Add version number
-        this.resetIfOldVersion();   // Check version before initializing
+        this.COOKIE_VERSION = '3';  // Increment version to force re-consent
+        this.resetIfOldVersion();   // This will run first
         this.initializeCookieConsent();
     }
 
     resetIfOldVersion() {
         const currentVersion = this.getCookie('cookieVersion');
         if (!currentVersion || currentVersion !== this.COOKIE_VERSION) {
-            // Clear old cookies
+            // Clear ALL existing cookies
             this.deleteCookie('cookieConsent');
             this.deleteCookie('cookieVersion');
+            this.deleteCookie('userCity');  // Clear city preference too
             
-            // Reset analytics state
-            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            // Clear GA cookies if they exist
+            this.deleteCookie('_ga');
+            this.deleteCookie('_ga_5S2F5FLR18');
+            
+            // Force analytics to denied state
+            if (window.location.hostname.endsWith('diena24.lt')) {
                 gtag('consent', 'update', {
                     'analytics_storage': 'denied'
                 });
