@@ -597,3 +597,33 @@ body {
         opacity: 1;
     }
 }
+
+.separator {
+    display: none;
+}
+
+.weather-city {
+    color: #666;
+    font-weight: normal;
+}
+
+.weather-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.weather-header h2 {
+    margin: 0;
+}
+
+.weather-location {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.weather-icon {
+    margin-right: 8px;
+}

@@ -148,6 +148,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const city = await locationService.getUserCity();
         if (city) {
+            // Update weather city display
+            document.querySelector('.weather-city').textContent = city;
             await weatherService.getForecast(city);
         }
     } catch (error) {

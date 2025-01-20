@@ -48,8 +48,12 @@ class CitySearch {
         // Store in cookies
         document.cookie = `userCity=${newCity};path=/;max-age=31536000`; // 1 year
         
-        // Update display
+        // Update header display
         this.citySpan.textContent = newCity;
+        
+        // Update weather section city display
+        document.querySelector('.weather-city').textContent = newCity;
+        
         this.hideInput();
 
         // Update weather data
