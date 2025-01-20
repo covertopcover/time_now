@@ -10,7 +10,10 @@ class CitySearch {
         this.input = document.createElement('input');
         this.input.className = 'city-input';
         this.input.type = 'text';
+        this.input.id = 'city-search';
+        this.input.name = 'city';
         this.input.placeholder = 'Įveskite miestą...';
+        this.input.autocomplete = 'address-level2';
         document.getElementById('user-city').appendChild(this.input);
     }
 
