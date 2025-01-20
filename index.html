@@ -11,26 +11,12 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5S2F5FLR18"></script>
 <script>
-    // Only initialize GA if not on localhost
-    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    // Only initialize GA for diena24.lt domain (with or without www)
+    if (window.location.hostname.endsWith('diena24.lt')) {
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        
-        // Default to denied until consent is given
-        gtag('consent', 'default', {
-            'analytics_storage': 'denied',
-            'ad_storage': 'denied'
-        });
-
-        // Initialize GA with first-party cookies only
-        gtag('config', 'G-5S2F5FLR18', {
-            'cookie_flags': 'SameSite=Strict;Secure',
-            'cookie_domain': window.location.hostname,
-            'cookie_update': false,
-            'client_storage': 'none',  // Disable third-party storage
-            'storage': 'none'          // Use first-party cookies only
-        });
+        gtag('config', 'G-5S2F5FLR18');
     }
 </script>
 </head>
