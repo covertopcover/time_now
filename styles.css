@@ -627,3 +627,27 @@ body {
 .weather-icon {
     margin-right: 8px;
 }
+
+.site-footer {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.footer-content {
+    font-size: 14px;
+}
+
+.heart {
+    color: #FF0000;
+    margin: 0 4px;  /* Spacing around the heart */
+}
+
+.site-footer a {
+    color: inherit;  /* Same color as text */
+    text-decoration: none;  /* Remove underline */
+    transition: color 0.2s ease;  /* Smooth color transition */
+}
+
+.site-footer a:hover {
+    color: #044992;  /* Blue color on hover */
+}
