@@ -651,3 +651,28 @@ body {
 .site-footer a:hover {
     color: #044992;  /* Blue color on hover */
 }
+
+.suggestions-container {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background: #f5f5f5;
+}
+
+#user-city {
+    position: relative;
+}
