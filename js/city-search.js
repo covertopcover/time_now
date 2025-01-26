@@ -94,12 +94,19 @@ class CitySearch {
         });
         
         this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+        
+        let suggestionClick = false;
+        
+        this.suggestionsContainer.addEventListener('mousedown', () => {
+            suggestionClick = true;
+        });
+        
         this.input.addEventListener('blur', () => {
-            // Small delay to allow click events on suggestions
-            setTimeout(() => {
+            if (!suggestionClick) {
                 this.hideInput();
                 this.suggestionsContainer.innerHTML = '';
-            }, 200);
+            }
+            suggestionClick = false;
         });
     }
 
@@ -120,20 +127,22 @@ class CitySearch {
     }
 
     handleKeydown(e) {
+        if (e.key === 'Escape') {
+            this.input.blur();  // This will trigger the blur event handler
+            return;
+        }
+
         if (e.key === 'Enter') {
             const inputValue = this.input.value;
             const normalizedInput = this.normalize(inputValue.toLowerCase());
             
-            // Check if input matches any city (using same normalization)
             const matchingCity = this.cities?.find(city => 
                 this.normalize(city.name.toLowerCase()) === normalizedInput
             );
 
             if (matchingCity) {
-                // Valid city - use the proper name from our list
                 this.handleSelection(matchingCity.name);
             } else {
-                // No match - fallback to current city
                 this.input.value = this.citySpan.textContent;
                 this.hideInput();
             }
