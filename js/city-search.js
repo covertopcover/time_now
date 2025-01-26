@@ -119,12 +119,39 @@ class CitySearch {
         this.input.value = '';
     }
 
-    handleKeydown(event) {
-        if (event.key === 'Escape') {
-            this.hideInput();
-        } else if (event.key === 'Enter' && this.input.value.trim()) {
-            this.updateCity(this.input.value.trim());
+    handleKeydown(e) {
+        if (e.key === 'Enter') {
+            const inputValue = this.input.value;
+            const normalizedInput = this.normalize(inputValue.toLowerCase());
+            
+            // Check if input matches any city (using same normalization)
+            const matchingCity = this.cities?.find(city => 
+                this.normalize(city.name.toLowerCase()) === normalizedInput
+            );
+
+            if (matchingCity) {
+                // Valid city - use the proper name from our list
+                this.handleSelection(matchingCity.name);
+            } else {
+                // No match - fallback to current city
+                this.input.value = this.citySpan.textContent;
+                this.hideInput();
+            }
         }
+    }
+
+    // Move normalize function to class level so it can be reused
+    normalize(str) {
+        return str
+            .replace(/ą/g, 'a')
+            .replace(/č/g, 'c')
+            .replace(/ę/g, 'e')
+            .replace(/ė/g, 'e')
+            .replace(/į/g, 'i')
+            .replace(/š/g, 's')
+            .replace(/ų/g, 'u')
+            .replace(/ū/g, 'u')
+            .replace(/ž/g, 'z');
     }
 
     async updateCity(newCity) {
