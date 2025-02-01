@@ -72,13 +72,13 @@ class CitySearch {
             const div = document.createElement('div');
             div.className = 'suggestion-item';
             div.textContent = city.name;  // Still display original name with proper characters
-            div.addEventListener('click', () => this.handleSelection(city.name));
+            div.addEventListener('click', () => this.handleSelection(city.name, city.code));  // Pass both name and code
             this.suggestionsContainer.appendChild(div);
         });
     }
 
-    handleSelection(cityName) {
-        this.updateCity(cityName);
+    handleSelection(cityName, cityCode) {
+        this.updateCity(cityName, cityCode);
         this.suggestionsContainer.innerHTML = '';
     }
 
@@ -141,7 +141,7 @@ class CitySearch {
             );
 
             if (matchingCity) {
-                this.handleSelection(matchingCity.name);
+                this.handleSelection(matchingCity.name, matchingCity.code);
             } else {
                 this.input.value = this.citySpan.textContent;
                 this.hideInput();
@@ -163,9 +163,10 @@ class CitySearch {
             .replace(/ž/g, 'z');
     }
 
-    async updateCity(newCity) {
-        // Store in cookies
-        document.cookie = `userCity=${newCity};path=/;max-age=31536000`; // 1 year
+    async updateCity(newCity, newCityCode) {
+        // Store both name and code in cookies
+        const cityData = JSON.stringify({ name: newCity, code: newCityCode });
+        document.cookie = `userCity=${encodeURIComponent(cityData)};path=/;max-age=31536000`; // 1 year
         
         // Update header display
         this.citySpan.textContent = newCity;
@@ -178,7 +179,7 @@ class CitySearch {
         // Update weather data
         try {
             const weatherService = new WeatherService();
-            await weatherService.getForecast(newCity);
+            await weatherService.getForecast(newCity, newCityCode);
         } catch (error) {
             console.error('Failed to update weather:', error);
         }

@@ -25,21 +25,15 @@ class WeatherService {
         };
     }
 
-    formatPlaceCode(city) {
-        if (!city) return null;
-        return city.toLowerCase().trim();
-    }
-
     translateCondition(code) {
         return this.conditionTranslations[code] || 'oro sąlygos nenustatytos';
     }
 
-    async getForecast(city) {
-        const placeCode = this.formatPlaceCode(city);
-        if (!placeCode) return null;
+    async getForecast(cityName, cityCode) {
+        if (!cityCode) return null;
 
         try {
-            const url = `${this.baseUrl}/${placeCode}`;
+            const url = `${this.baseUrl}/${cityCode}`;
             const response = await fetch(url);
             if (!response.ok) throw new Error('City not found');
             
@@ -147,12 +141,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     try {
         const city = await locationService.getUserCity();
-        if (city) {
-            // Update weather city display
-            document.querySelector('.weather-city').textContent = city;
-            await weatherService.getForecast(city);
+        if (city && city.name) {
+            // Update display with city name
+            document.querySelector('.weather-city').textContent = city.name;
+            
+            // Get forecast using both name and code
+            await weatherService.getForecast(city.name, city.code);
         }
     } catch (error) {
-        // Silently fail
+        console.error('Failed to load weather:', error);
     }
 }); 

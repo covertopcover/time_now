@@ -1,6 +1,20 @@
 class LocationService {
+    getCityFromCookie() {
+        const cookies = document.cookie.split(';');
+        const cityCookie = cookies.find(cookie => cookie.trim().startsWith('userCity='));
+        if (cityCookie) {
+            try {
+                const cityData = JSON.parse(decodeURIComponent(cityCookie.split('=')[1]));
+                return cityData; // Returns { name: "cityName", code: "cityCode" }
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    }
+
     async getUserCity() {
-        // Check cookies first (using js-cookie library or native approach)
+        // Check cookies first
         const cookieCity = this.getCityFromCookie();
         if (cookieCity) {
             return cookieCity;
@@ -9,12 +23,18 @@ class LocationService {
         // If no cookie, check localStorage (as fallback)
         const savedCity = localStorage.getItem('userCity');
         if (savedCity) {
-            return savedCity;
+            try {
+                const cityData = JSON.parse(savedCity);
+                return cityData;
+            } catch {
+                // Handle old format or invalid data
+                return { name: savedCity, code: null };
+            }
         }
 
         try {
             if (!navigator.geolocation) {
-                return 'Vilnius';
+                return { name: 'Vilnius', code: 'vilnius' };
             }
 
             const position = await new Promise((resolve, reject) => {
@@ -32,23 +52,16 @@ class LocationService {
             );
 
             const data = await response.json();
-            const city = data.address.city || data.address.town || 'Vilnius';
+            const cityName = data.address.city || data.address.town || 'Vilnius';
             
-            return city;
+            return { 
+                name: cityName,
+                code: cityName.toLowerCase() === 'vilnius' ? 'vilnius' : null 
+            };
             
         } catch (error) {
-            return 'Vilnius';
+            return { name: 'Vilnius', code: 'vilnius' };
         }
-    }
-
-    getCityFromCookie() {
-        // Get userCity from cookie
-        const cookies = document.cookie.split(';');
-        const cityCookie = cookies.find(cookie => cookie.trim().startsWith('userCity='));
-        if (cityCookie) {
-            return decodeURIComponent(cityCookie.split('=')[1]);
-        }
-        return null;
     }
 }
 
@@ -59,7 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     try {
         const city = await locationService.getUserCity();
-        cityNameElement.textContent = city || 'Location not available';
+        cityNameElement.textContent = city.name || 'Location not available';
     } catch (error) {
         cityNameElement.textContent = 'Could not get location';
     }
